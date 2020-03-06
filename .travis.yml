@@ -1,0 +1,41 @@
+branches:
+  only:
+    - master
+    - develop
+    - /^(feature|release)\/.*$/
+language: node_js
+node_js: '10'
+cache: npm
+addons:
+  chrome: stable
+before_install:
+  - npm i -g npm@latest
+  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
+script:
+  - npm start &
+  - npm run lint
+  - npm run test
+deploy:
+  - provider: pages
+    skip_cleanup: true
+    token: $GITHUB_TOKEN
+    keep_history: true
+    local_dir: ./dist/app/browser
+    on:
+      all_branches: true
+  - provider: pages
+    skip_cleanup: true
+    token: $GITHUB_TOKEN
+    keep_history: true
+    local_dir: ./dist/app/browser
+    target_branch: dist/$TRAVIS_BRANCH
+    on:
+      all_branches: true
+      condition: $TRAVIS_BRANCH =~ ^(master|develop|feature|release)
+after_success:
+  - npm run build
+  - npm run storybook:build
+notifications:
+  email:
+    on_success: never
+    on_failure: always

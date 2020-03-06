@@ -11,5 +11,5 @@ describe('E2E Sample', () => {
     await expect(page.$eval('#app > h1', e => e.innerHTML)).resolves.toEqual('Hello World!');
 
     await browser.close();
-  });
+  }, 10000);
 });
